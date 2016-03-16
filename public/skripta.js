@@ -1,6 +1,5 @@
 window.addEventListener('load', function() {
 	//stran nalozena
-	
 	var prizgiCakanje = function() {
 		document.querySelector(".loading").style.display = "block";
 	}
@@ -18,6 +17,7 @@ window.addEventListener('load', function() {
 		xhttp.onreadystatechange = function() {
 			if (xhttp.readyState == 4 && xhttp.status == 200) {
 				var datoteke = JSON.parse(xhttp.responseText);
+				window.location = "#datoteke";
 				
 				var datotekeHTML = document.querySelector("#datoteke");
 				
@@ -26,13 +26,32 @@ window.addEventListener('load', function() {
 					
 					var velikost = datoteka.velikost;
 					var enota = "B";
+					var tmpVelikost = velikost;
+					if (velikost > 1024) {
+						var st = 0;
+						while (tmpVelikost > 1024) {
+							tmpVelikost /= 1024;
+							st++;
+						}
+						if (st == 1) {
+							enota = "KiB";
+						}
+						else if (st == 2) {
+							enota = "MiB";
+						}
+						else {
+							enota = "GiB";
+						}
+						tmpVelikost = Math.round(tmpVelikost * 100) / 100;
+					}
 					
 					datotekeHTML.innerHTML += " \
 						<div class='datoteka senca rob'> \
-							<div class='naziv_datoteke'> " + datoteka.datoteka + "  (" + velikost + " " + enota + ") </div> \
+							<div class='naziv_datoteke'> " + datoteka.datoteka + "  (" + tmpVelikost + " " + enota + ") </div> \
 							<div class='akcije'> \
 							| <span><a href='/prenesi/" + datoteka.datoteka + "' target='_self'>Prenesi</a></span> \
-							| <span akcija='brisi' datoteka='"+ datoteka.datoteka +"'>Izbriši</span> </div> \
+							| <span akcija='brisi' datoteka='"+ datoteka.datoteka +"'>Izbriši</span> \
+							| <span><a href='/poglej/" + datoteka.datoteka + "' target='_blank'>Poglej</a></span></div> \
 					    </div>";	
 				}
 				
@@ -42,7 +61,10 @@ window.addEventListener('load', function() {
 				ugasniCakanje();
 			}
 		};
+		xhttp.open("GET", "/datoteke", true);
+		xhttp.send();
 	}
+	pridobiSeznamDatotek();
 	
 	var brisi = function(event) {
 		prizgiCakanje();
